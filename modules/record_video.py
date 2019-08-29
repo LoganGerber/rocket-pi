@@ -59,7 +59,7 @@ def RecordVideo(stop_event):
         camera.stop_recording()
 
     except:
-        led.blink()
+        led.blink(on_time=0.5, off_time=0.5)
 
         stop_event.wait()
 

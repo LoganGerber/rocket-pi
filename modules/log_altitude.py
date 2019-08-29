@@ -61,7 +61,7 @@ def LogAltitude(rate, stop_event):
         log.close()
     except:
         led = LED(26)
-        led.blink()
+        led.blink(on_time=0.5, off_time=0.5)
 
         stop_event.wait()
 
