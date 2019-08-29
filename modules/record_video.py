@@ -5,8 +5,6 @@ import multiprocessing as mp
 import picamera
 import gpiozero
 
-sys.exit()
-
 def RecordVideo(stop_event):
     # Set up camera
     cam = picamera.PiCamera(resolution=(1920,1080), framerate=30)
