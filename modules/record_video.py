@@ -1,5 +1,7 @@
 import sys
+import os
 import datetime
+import signal
 import multiprocessing as mp
 
 import picamera
@@ -43,8 +45,8 @@ def RecordVideo(stop_event):
         while not stop_event.is_set():
             if should_record:
                 led.on()
-                camera.start_recording(CreateFilename(recording_file_path, record_number))
-                camera.wait_recording(10)
+                cam.start_recording(CreateFilename(record_number))
+                cam.wait_recording(10)
                 record_number += 1
             else:
                 led.off()
@@ -56,18 +58,18 @@ def RecordVideo(stop_event):
             elif not button.is_pressed and button_held:
                 button_held = False
 
-        camera.stop_recording()
+        cam.stop_recording()
 
-    except:
+    except Exception as e:
+        print(e)
         led.blink(on_time=0.5, off_time=0.5)
-
-        stop_event.wait()
 
 def DoNothing(signal, frame):
     pass
 
 if __name__ == '__main__':
     stop_token = mp.Event()
+    RecordVideo(stop_token)
 
     record_process = mp.Process(target=RecordVideo, args=(stop_token,), name='Record video')
     record_process.start()
@@ -78,5 +80,5 @@ if __name__ == '__main__':
     signal.pause()
 
     stop_token.set()
-    record_process.join(11)
+    record_process.join(12)
 
