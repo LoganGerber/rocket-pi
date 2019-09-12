@@ -31,6 +31,7 @@ def held():
     p.start()
 
 def released():
+    global event
     global was_held
     if was_held:
         event.set()
