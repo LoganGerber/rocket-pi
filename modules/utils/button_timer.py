@@ -28,7 +28,10 @@ class ButtonTimer:
         while not self.waiting_queue.empty():
             self.waiting_queue.get()
         self.waiting_for_press = True
-        time_pressed = self.waiting_queue.get(True, timeout)
+        try:
+            time_pressed = self.waiting_queue.get(True, timeout)
+        except queue.Empty:
+            time_pressed = None
         self.waiting_for_press = False
         return time_pressed
 
