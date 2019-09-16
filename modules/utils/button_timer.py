@@ -47,11 +47,11 @@ class ButtonTimer:
 
     def _button_released(self) -> None:
         if self.button_was_held:
+            self.button_was_held = False
+            
             time_held = time.time() - self.time_pressed
 
             for callback in self.callbacks:
                 callback(time_held)
             if self.waiting_for_press:
                 self.waiting_queue.put(time_held)
-
-            self.button_was_held = False
