@@ -36,6 +36,9 @@ class ButtonTimer:
         self.waiting_for_press = False
         return time_pressed
 
+    def clear_callbacks(self):
+        self.callbacks.clear()
+
 
     def _button_pressed(self) -> None:
         self.time_pressed = time.time()
