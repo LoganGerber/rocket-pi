@@ -10,7 +10,10 @@ class ButtonTimer:
 
         self.button_was_held = False
 
-        self.button = Button(button_pin, hold_time=0.1, bounce_time=0.01)
+        self.button = Button(button_pin,
+                             hold_time=0.1,
+                             bounce_time=0.01,
+                             hold_repeat=True)
         self.button.when_pressed = self._button_pressed
         self.button.when_held = self._button_held
         self.button.when_released = self._button_released
@@ -51,7 +54,7 @@ class ButtonTimer:
     def _button_released(self) -> None:
         if self.button_was_held:
             self.button_was_held = False
-            
+
             time_held = time.time() - self.time_pressed
 
             for callback in self.callbacks:
