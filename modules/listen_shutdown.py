@@ -1,7 +1,7 @@
 import os
 from signal import pause
 
-from modules.utils.button_timer import ButtonTimer
+from utils.button_timer import ButtonTimer
 
 def shutdown(hold_time: float) -> None:
     if hold_time >= 3:
