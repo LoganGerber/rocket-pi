@@ -1,19 +1,27 @@
-import sys
 import os
+import time
 import datetime
-import signal
-import multiprocessing as mp
 
 import picamera
-from gpiozero import LED, Button
+import gpiozero
 
-def RecordVideo(stop_event):
-    led = LED(26)
+from utils.button_timer import ButtonTimer
+
+if __name__ == '__main__':
     try:
-        button = Button(17, hold_time=0.25, bounce_time=0.01)
+        led = gpiozero.LED(26)
+
+        should_record = False
+        def toggle_record(hold_time):
+            nonlocal should_record
+            should_record = not should_record
+
+        # Set up button listener
+        button = ButtonTimer(17)
+        button.add_callback(toggle_record)
 
         # Set up camera
-        cam = picamera.PiCamera(resolution=(1920,1080), framerate=30)
+        cam = picamera.PiCamera(resolution=(1920, 1080), framerate=30)
 
         # Get the current date and time to use for creating the log directory and file
         current_date = str(datetime.datetime.now()).split(' ')
@@ -36,49 +44,25 @@ def RecordVideo(stop_event):
             file_name = '{:03d}.h264'.format(file_number)
             return os.path.join(log_dir, file_name)
 
-        should_record = False
-        button_held = False
-
         record_number = 0
-        led.on()
+        led.off()
+
         # Video creation loop
-        while not stop_event.is_set():
+        while True:
             if should_record:
-                led.on()
-                cam.start_recording(CreateFilename(record_number))
+                if not cam.recording:
+                    led.on()
+                    cam.start_recording(CreateFilename(record_number))
+                else:
+                    cam.split_recording(CreateFilename(record_number))
+
                 cam.wait_recording(10)
                 record_number += 1
             else:
-                led.off()
-                button.wait_for_press(1)
+                if cam.recording:
+                    cam.stop_recording()
+                    led.off()
 
-            if button.is_pressed and not button_held:
-                should_record = not should_record
-                button_held = True
-            elif not button.is_pressed and button_held:
-                button_held = False
-
-        cam.stop_recording()
-
-    except Exception as e:
-        print(e)
+                time.sleep(1)
+    except Exception:
         led.blink(on_time=0.5, off_time=0.5)
-
-def DoNothing(signal, frame):
-    pass
-
-if __name__ == '__main__':
-    stop_token = mp.Event()
-    RecordVideo(stop_token)
-
-    record_process = mp.Process(target=RecordVideo, args=(stop_token,), name='Record video')
-    record_process.start()
-
-    signal.signal(signal.SIGTERM, DoNothing)
-    signal.signal(signal.SIGHUP, DoNothing)
-
-    signal.pause()
-
-    stop_token.set()
-    record_process.join(12)
-
