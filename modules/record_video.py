@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
         should_record = False
         def toggle_record(hold_time):
-            nonlocal should_record
+            global should_record
             should_record = not should_record
 
         # Set up button listener
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
         # Ensure the log directory exists
         log_dir = os.path.dirname(os.path.realpath(__file__))
-        log_dir = os.path.join(log_dir, '../logs/video/{}'.format(current_date[0]))
+        log_dir = os.path.join(log_dir, '../logs/video/{}/{}'.format(current_date[0], current_date[1]))
 
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
