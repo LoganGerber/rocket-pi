@@ -48,7 +48,7 @@ class ButtonTimer:
         self.button_was_held = True
 
     def _button_held(self) -> None:
-        if time.time() - self.time_pressed >= self.timeout:
+        if self.timeout != None and (time.time() - self.time_pressed) >= self.timeout:
             self._button_released()
 
     def _button_released(self) -> None:
