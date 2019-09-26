@@ -5,20 +5,9 @@ import datetime
 import picamera
 import gpiozero
 
-from utils.button_timer import ButtonTimer
-
 if __name__ == '__main__':
     try:
         led = gpiozero.LED(26)
-
-        should_record = False
-        def toggle_record(hold_time):
-            global should_record
-            should_record = not should_record
-
-        # Set up button listener
-        button = ButtonTimer(17)
-        button.add_callback(toggle_record)
 
         # Set up camera
         cam = picamera.PiCamera(resolution=(1920, 1080), framerate=30)
@@ -44,25 +33,16 @@ if __name__ == '__main__':
             file_name = '{:03d}.h264'.format(file_number)
             return os.path.join(log_dir, file_name)
 
-        record_number = 0
-        led.off()
-
         # Video creation loop
+        record_number = 1
+        cam.start_recording(CreateFilename(record_number)
+        led.on()
+
         while True:
-            if should_record:
-                if not cam.recording:
-                    led.on()
-                    cam.start_recording(CreateFilename(record_number))
-                else:
-                    cam.split_recording(CreateFilename(record_number))
+            cam.wait_recording(10)
+            record_number += 1
 
-                cam.wait_recording(10)
-                record_number += 1
-            else:
-                if cam.recording:
-                    cam.stop_recording()
-                    led.off()
+            cam.split_recording(CreateFilename(record_number))
 
-                time.sleep(1)
     except Exception:
         led.blink(on_time=0.5, off_time=0.5)
